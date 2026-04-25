@@ -26,5 +26,15 @@ class CourseTeacherSeeder extends Seeder
         CourseTeacher::create(['course_id' => $elec201->id, 'user_id' => $patricia->id]);
         CourseTeacher::create(['course_id' => $caja102->id, 'user_id' => $jorge->id]);
         CourseTeacher::create(['course_id' => $diag401->id, 'user_id' => $jorge->id]);
+
+        $teachers = User::where('role', 'teacher')->get();
+        $courses = Course::whereNotIn('id', [$mot101->id, $frenos301->id, $elec201->id, $caja102->id, $diag401->id])->get();
+
+        foreach ($courses as $course) {
+            CourseTeacher::create([
+                'course_id' => $course->id,
+                'user_id' => $teachers->random()->id
+            ]);
+        }
     }
 }

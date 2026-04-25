@@ -12,6 +12,18 @@ class ModuleSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $courses = \App\Models\Course::all();
+        
+        foreach ($courses as $course) {
+            $numModules = rand(3, 6);
+            for ($i = 1; $i <= $numModules; $i++) {
+                \App\Models\Module::create([
+                    'course_id' => $course->id,
+                    'name' => "Módulo {$i}: Fundamentos y Práctica",
+                    'description' => "En este módulo se abordan los temas principales correspondientes a la unidad {$i} del curso.",
+                    'order' => $i
+                ]);
+            }
+        }
     }
 }

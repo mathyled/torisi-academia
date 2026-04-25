@@ -14,11 +14,11 @@ class GradeResource extends JsonResource
             'enrollment_id' => $this->enrollment_id,
             'score' => $this->score,
             'period' => $this->period,
-            'student' => $this->whenLoaded('enrollment.student', function () {
+            'student' => $this->when($this->relationLoaded('enrollment') && $this->enrollment->relationLoaded('user'), function () {
                 return [
-                    'id' => $this->enrollment->student->id,
-                    'name' => $this->enrollment->student->name,
-                    'dni' => $this->enrollment->student->dni,
+                    'id' => $this->enrollment->user->id,
+                    'name' => $this->enrollment->user->name,
+                    'dni' => $this->enrollment->user->dni,
                 ];
             }),
             'course' => $this->whenLoaded('enrollment.course', function () {

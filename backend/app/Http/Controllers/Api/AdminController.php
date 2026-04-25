@@ -118,10 +118,13 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'role' => 'required|in:student,teacher',
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+            'dni' => 'sometimes|nullable|string|size:8|unique:users,dni,' . $user->id,
+            'role' => 'sometimes|required|in:student,teacher',
         ]);
 
-        $user->update(['role' => $validated['role']]);
+        $user->update($validated);
 
         return response()->json(['user' => new UserResource($user)]);
     }

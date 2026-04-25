@@ -40,7 +40,7 @@ class TeacherController extends Controller
         }
 
         $grade->update(['score' => $request->score]);
-        return response()->json(['grade' => new GradeResource($grade->load(['enrollment.student', 'enrollment.course']))]);
+        return response()->json(['grade' => new GradeResource($grade->load(['enrollment.user', 'enrollment.course']))]);
     }
 
     public function storeGrade(StoreGradeRequest $request): JsonResponse
@@ -56,6 +56,6 @@ class TeacherController extends Controller
             ['score' => $request->score, 'period' => $enrollment->course->period]
         );
 
-        return response()->json(['grade' => new GradeResource($grade->load(['enrollment.student', 'enrollment.course']))], 201);
+        return response()->json(['grade' => new GradeResource($grade->load(['enrollment.user', 'enrollment.course']))], 201);
     }
 }

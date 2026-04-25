@@ -17,9 +17,32 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function courses(): JsonResponse
+    public function courses(Request $request): JsonResponse
     {
-        return response()->json(['courses' => CourseResource::collection(Course::with('teachers')->get())]);
+        $query = Course::with('teachers');
+        
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
+        }
+        
+        if ($request->has('sort_by')) {
+            $query->orderBy($request->sort_by, $request->sort_direction ?? 'asc');
+        }
+        
+        $perPage = $request->per_page ?? 10;
+        $courses = $query->paginate($perPage);
+        
+        return response()->json([
+            'courses' => CourseResource::collection($courses),
+            'pagination' => [
+                'total' => $courses->total(),
+                'per_page' => $courses->perPage(),
+                'current_page' => $courses->currentPage(),
+                'last_page' => $courses->lastPage(),
+            ]
+        ]);
     }
 
     public function storeCourse(StoreCourseRequest $request): JsonResponse
@@ -37,8 +60,34 @@ class AdminController extends Controller
     public function users(Request $request): JsonResponse
     {
         $query = User::query();
-        if ($request->has('role')) $query->where('role', $request->role);
-        return response()->json(['users' => UserResource::collection($query->get())]);
+        
+        if ($request->has('role')) {
+            $query->where('role', $request->role);
+        }
+        
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('dni', 'like', "%{$search}%");
+        }
+        
+        if ($request->has('sort_by')) {
+            $query->orderBy($request->sort_by, $request->sort_direction ?? 'asc');
+        }
+        
+        $perPage = $request->per_page ?? 10;
+        $users = $query->paginate($perPage);
+        
+        return response()->json([
+            'users' => UserResource::collection($users),
+            'pagination' => [
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+            ]
+        ]);
     }
 
     public function storeUser(Request $request): JsonResponse
@@ -87,10 +136,37 @@ class AdminController extends Controller
         return response()->json(['message' => 'Usuario eliminado exitosamente.']);
     }
 
-    public function enrollments(): JsonResponse
+    public function enrollments(Request $request): JsonResponse
     {
-        $enrollments = Enrollment::with(['user', 'course'])->get();
-        return response()->json(['enrollments' => $enrollments]);
+        $query = Enrollment::with(['user', 'course']);
+        
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            })->orWhereHas('course', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($request->has('sort_by')) {
+            $query->orderBy($request->sort_by, $request->sort_direction ?? 'asc');
+        }
+        
+        $perPage = $request->per_page ?? 10;
+        $enrollments = $query->paginate($perPage);
+        
+        return response()->json([
+            'enrollments' => $enrollments->items(),
+            'pagination' => [
+                'total' => $enrollments->total(),
+                'per_page' => $enrollments->perPage(),
+                'current_page' => $enrollments->currentPage(),
+                'last_page' => $enrollments->lastPage(),
+            ]
+        ]);
     }
 
     public function storeEnrollment(Request $request): JsonResponse

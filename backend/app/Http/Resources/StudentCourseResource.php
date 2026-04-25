@@ -13,14 +13,21 @@ class StudentCourseResource extends JsonResource
         $teacher = $this->course->teachers->first();
 
         return [
-            'course_id' => $this->course->id,
+            'id' => $this->course->id,
             'code' => $this->course->code,
             'name' => $this->course->name,
             'description' => $this->course->description,
             'period' => $this->course->period,
-            'teacher_name' => $teacher?->name ?? 'Sin asignar',
-            'score' => $grade?->score,
-            'grade_id' => $grade?->id,
+            'teacher' => $teacher ? [
+                'id' => $teacher->id,
+                'name' => $teacher->name,
+                'email' => $teacher->email,
+            ] : null,
+            'grade' => $grade ? [
+                'id' => $grade->id,
+                'score' => $grade->score,
+                'period' => $grade->period,
+            ] : null,
         ];
     }
 }

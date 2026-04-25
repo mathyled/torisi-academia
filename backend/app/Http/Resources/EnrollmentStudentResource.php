@@ -12,11 +12,19 @@ class EnrollmentStudentResource extends JsonResource
         $grade = $this->grade;
 
         return [
-            'enrollment_id' => $this->id,
-            'grade_id' => $grade?->id,
-            'student_name' => $this->user->name,
-            'student_dni' => $this->user->dni,
-            'score' => $grade?->score,
+            'id' => $this->id,
+            'user' => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'dni' => $this->user->dni,
+                'role' => $this->user->role,
+            ],
+            'grade' => $grade ? [
+                'id' => $grade->id,
+                'score' => $grade->score,
+                'period' => $grade->period,
+            ] : null,
         ];
     }
 }

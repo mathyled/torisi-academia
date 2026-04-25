@@ -14,6 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware(EnsureRole::class . ':student')->prefix('student')->group(function () {
         Route::get('/my-courses', [StudentController::class, 'myCourses']);
+        Route::get('/courses/{course}/classmates', [StudentController::class, 'courseClassmates']);
+        Route::get('/courses/{course}/modules', [StudentController::class, 'courseModules']);
     });
 
     Route::middleware(EnsureRole::class . ':teacher')->prefix('teacher')->group(function () {

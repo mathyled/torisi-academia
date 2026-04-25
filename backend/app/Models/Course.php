@@ -36,4 +36,9 @@ class Course extends Model
     {
         return $this->hasOne(CourseTeacher::class)->latest();
     }
+
+    public function modules()
+    {
+        return $this->hasMany(Module::class)->orderBy('order');
+    }
 }

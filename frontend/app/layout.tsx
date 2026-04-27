@@ -10,7 +10,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'Instituto Técnico Automotriz - Sistema de Calificaciones',
   description: 'Sistema de gestión académica para el Instituto Técnico Automotriz',
-  generator: 'v0.app',
   icons: {
     icon: [
       {

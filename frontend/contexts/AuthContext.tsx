@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient, ApiError } from '@/lib/api';
 import type { User, LoginRequest } from '@/types/api';
 
@@ -21,25 +21,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing token and user on mount
+  const clearAuth = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    apiClient.setToken(null);
     if (typeof window !== 'undefined') {
-      const storedToken = localStorage.getItem('auth_token');
-      const storedUser = localStorage.getItem('auth_user');
-      if (storedToken) {
-        setToken(storedToken);
-        apiClient.setToken(storedToken);
-      }
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch {
-          localStorage.removeItem('auth_user');
-        }
-      }
-      setIsLoading(false);
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
     }
   }, []);
+
+  useEffect(() => {
+    // Register auto-logout callback for 401 responses
+    apiClient.setOnUnauthorized(() => {
+      clearAuth();
+    });
+  }, [clearAuth]);
+
+  useEffect(() => {
+    // On mount: validate stored token against the server
+    const initAuth = async () => {
+      if (typeof window === 'undefined') {
+        setIsLoading(false);
+        return;
+      }
+
+      const storedToken = localStorage.getItem('auth_token');
+
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Set token in client so the /api/me request is authenticated
+      apiClient.setToken(storedToken);
+
+      try {
+        const { user: serverUser } = await apiClient.getMe();
+        setToken(storedToken);
+        setUser(serverUser);
+        // Keep localStorage in sync with latest server data
+        localStorage.setItem('auth_user', JSON.stringify(serverUser));
+      } catch {
+        // Token is invalid or expired — clear everything
+        clearAuth();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initAuth();
+  }, [clearAuth]);
 
   const login = async (credentials: LoginRequest) => {
     try {
@@ -65,27 +97,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     } finally {
-      setToken(null);
-      setUser(null);
-      apiClient.setToken(null);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
+      clearAuth();
     }
   };
 
   const refreshUser = async () => {
-    // In a real app, you might want to fetch current user from /api/me
-    // For now, we'll just use the stored user
-    return;
+    if (!token) return;
+    try {
+      const { user: serverUser } = await apiClient.getMe();
+      setUser(serverUser);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth_user', JSON.stringify(serverUser));
+      }
+    } catch {
+      // Token revoked server-side
+      clearAuth();
+    }
   };
 
   const value: AuthContextType = {
     user,
     token,
     isLoading,
-    isAuthenticated: !!token,
+    isAuthenticated: !!token && !!user,
     login,
     logout,
     refreshUser,

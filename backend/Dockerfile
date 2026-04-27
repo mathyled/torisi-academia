@@ -1,6 +1,6 @@
 FROM php:8.3-cli
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema necesarias para las extensiones de PHP
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
+    libpq-dev \
+    libzip-dev
 
-# Instalar extensiones de PHP (MySQL y PostgreSQL por si acaso)
-RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
+# Instalar todas las extensiones de PHP que Laravel 11 suele pedir
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd xml zip
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -23,14 +24,14 @@ WORKDIR /app
 # Copiar archivos del proyecto
 COPY . .
 
-# Instalar dependencias de PHP
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+# Instalar dependencias de PHP ignorando restricciones de plataforma para evitar el Error 2
+RUN composer install --no-interaction --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Permisos para Laravel
 RUN chmod -R 775 storage bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache
 
-# Puerto por defecto (Render lo sobreescribe con $PORT)
+# Puerto por defecto
 EXPOSE 8000
 
 # Comando de inicio

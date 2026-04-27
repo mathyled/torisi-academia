@@ -7,6 +7,14 @@ use App\Http\Controllers\Api\TeacherController;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return response()->json([
+        'message' => 'Torisi Academia API - Backend Online',
+        'status' => 'success',
+        'version' => '1.0.0'
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {

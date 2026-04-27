@@ -1,94 +1,76 @@
-# Torisi Academia - Plataforma de Gestión Académica
+# 🚀 Torisi Academia - Sistema de Gestión Académica
 
-Torisi Academia es una plataforma integral para la gestión de cursos, alumnos y calificaciones, desarrollada como una prueba técnica de alto rendimiento. La aplicación separa claramente las responsabilidades entre un backend robusto en Laravel y un frontend moderno y dinámico en Next.js.
-
-## 🚀 Instalación Rápida
-
-Para facilitar la evaluación, se ha incluido un script de automatización que configura el entorno completo (backend y frontend) con un solo comando.
-
-1. Clona el repositorio.
-2. Abre una terminal (Bash/Git Bash) en la raíz del proyecto.
-3. Ejecuta el script de configuración:
-   ```bash
-   ./setup.sh
-   ```
-
-*El script se encargará de instalar dependencias (Composer/NPM), configurar archivos .env, generar llaves, preparar la base de datos SQLite y poblarla con datos de prueba.*
+Torisi Academia es una plataforma integral de alto rendimiento para la gestión de cursos, alumnos y calificaciones. Diseñada con una arquitectura desacoplada, utiliza un **Backend robusto en Laravel 11** y un **Frontend moderno en Next.js**, ofreciendo una experiencia de usuario fluida, segura y escalable.
 
 ---
 
-## 🛠️ Requisitos del Sistema
+## 🌐 Demo en Vivo
 
-- **PHP:** 8.2 o superior
-- **Node.js:** 18.0 o superior
-- **Composer:** v2
-- **Base de datos:** SQLite (por defecto para facilitar la evaluación rápida)
+Puedes acceder a la versión de producción en los siguientes enlaces:
+
+*   **Frontend (Vercel):** [https://torisi-academia-frontend.vercel.app/](https://torisi-academia-frontend.vercel.app/)
+*   **Backend API (Render):** [https://torisi-academia-backend.onrender.com/api](https://torisi-academia-backend.onrender.com/api)
 
 ---
 
-## 🔑 Credenciales de Prueba
-
-Una vez instalada la aplicación, puedes acceder con los siguientes roles:
+## 🔑 Credenciales de Acceso (Demo)
 
 | Rol | Email | Contraseña |
 | :--- | :--- | :--- |
 | **Administrador** | `admin@ita.edu.pe` | `password` |
 | **Profesor** | `carlos.rios@ita.edu.pe` | `password` |
-| **Estudiante** | (Cualquier estudiante cargado) | `password` |
+| **Estudiante** | `juan.rodriguez@ita.edu.pe` | `password` |
 
 ---
 
-## ✨ Características Principales
+## 🛠️ Stack Tecnológico
 
-### Backend (Laravel 11)
-- **API RESTful:** Endpoints estandarizados con JSON.
-- **Seguridad:** Autenticación mediante Laravel Sanctum (Tokens Bearer).
-- **Control de Acceso:** Middleware personalizado para la gestión de roles (Admin, Profesor, Estudiante).
-- **Arquitectura Limpia:** Uso de `API Resources` para la transformación de datos y `FormRequests` para validaciones robustas.
-- **Seeding Inteligente:** Carga masiva de 40 cursos, módulos por curso, asignaciones aleatorias de profesores y notas simuladas para demostrar escalabilidad.
+### **Backend (Core API)**
+*   **Framework:** Laravel 11 (PHP 8.3)
+*   **Autenticación:** Laravel Sanctum (Token-based)
+*   **Base de Datos:** TiDB Cloud (MySQL compatible) para Producción / SQLite para Desarrollo.
+*   **Infraestructura:** Despliegue mediante **Docker** en Render.
+*   **Seguridad:** Middleware de roles personalizado, validación de esquemas y recursos API transformados.
 
-### Frontend (Next.js + Tailwind CSS)
-- **Dashboard Dinámico:** Interfaz responsiva que se adapta según el rol del usuario.
-- **UX Optimizada:** 
-  - **Selectores Buscables (Combobox):** Búsqueda en tiempo real para asignar profesores o matricular alumnos.
-  - **Acordeones Dinámicos:** Visualización colapsable de módulos para una navegación fluida.
-  - **Sincronización Instantánea:** Actualización de tablas mediante `refetch` tras cada acción (asignar nota, borrar curso, etc.).
-- **Diseño Premium:** Estética moderna utilizando componentes de Radix UI y animaciones sutiles.
-
----
-
-## 📂 Estructura del Proyecto
-
-```text
-├── backend/            # Aplicación Laravel 11 (API)
-├── frontend/           # Aplicación Next.js (SPA)
-├── setup.sh            # Script de instalación automatizada
-└── README.md           # Documentación
-```
+### **Frontend (UX/UI)**
+*   **Framework:** Next.js (App Router)
+*   **Estilos:** Tailwind CSS
+*   **Componentes:** Radix UI / Shadcn UI
+*   **Estado:** Context API para gestión global de autenticación y sincronización con servidor.
+*   **Despliegue:** Vercel.
 
 ---
 
-## 💻 Ejecución Manual
+## ✨ Características Destacadas
 
-Si prefieres no usar el script automático:
+*   **Dashboard Inteligente:** Interfaz que muta dinámicamente según el rol detectado (Admin, Profesor, Alumno).
+*   **Gestión de Cursos Pro:** Creación, edición y borrado de cursos con asignación dinámica de profesores mediante selectores inteligentes (Combobox).
+*   **Módulos Dinámicos:** Organización de contenido por módulos colapsables.
+*   **Sistema de Calificaciones:** Los profesores pueden gestionar notas de alumnos matriculados con validación en tiempo real.
+*   **Validación de Sesión Profesional:** El frontend valida el token contra el servidor en cada carga para garantizar la integridad de la sesión.
 
-**Backend:**
-```bash
-cd backend
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate:fresh --seed
-php artisan serve
-```
+---
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## 📂 Instalación Local
+
+Si deseas ejecutar el proyecto localmente:
+
+1.  **Clonar el repositorio.**
+2.  **Instalación automática:**
+    ```bash
+    ./setup.sh
+    ```
+    *Este script configura automáticamente el entorno (env, keys, migrations, seeders).*
+
+3.  **Ejecución manual:**
+    *   **Backend:** `cd backend && php artisan serve`
+    *   **Frontend:** `cd frontend && npm run dev`
+
+---
+
+## 📝 Notas de Implementación
+*   **CORS:** Configurado para permitir la comunicación segura entre los dominios de Vercel y Render.
+*   **Seeding:** Se incluyen seeders idempotentes que generan una base de datos rica en información para pruebas (cursos, notas, profesores y alumnos).
 
 ---
 *Desarrollado con ❤️ para Torisi Academia.*
- 

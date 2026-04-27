@@ -27,6 +27,7 @@ class ApiError extends Error {
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
+  private onUnauthorized: (() => void) | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -35,6 +36,11 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('auth_token');
     }
+  }
+
+  /** Register a callback to be called when the server returns 401 */
+  setOnUnauthorized(callback: () => void) {
+    this.onUnauthorized = callback;
   }
 
   setToken(token: string | null) {
@@ -72,6 +78,9 @@ class ApiClient {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401 && this.onUnauthorized) {
+        this.onUnauthorized();
+      }
       throw new ApiError(
         data.message || 'Error en la petición',
         response.status,
@@ -94,6 +103,10 @@ class ApiClient {
     return this.request<{ message: string }>('/api/logout', {
       method: 'POST',
     });
+  }
+
+  async getMe(): Promise<{ user: import('@/types/api').User }> {
+    return this.request<{ user: import('@/types/api').User }>('/api/me');
   }
 
   // Student endpoints

@@ -11,9 +11,12 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Admin
-        User::create(['name' => 'Administrador ITA', 'email' => 'admin@ita.edu.pe', 'password' => Hash::make('password'), 'role' => 'admin', 'dni' => null]);
+        User::updateOrCreate(
+            ['email' => 'admin@ita.edu.pe'],
+            ['name' => 'Administrador ITA', 'password' => Hash::make('password'), 'role' => 'admin', 'dni' => null]
+        );
 
-        // Teachers (20) - nombres con acentos para display, emails sin acentos
+        // Teachers (20)
         $teachers = [
             ['name' => 'Ing. Carlos Rios', 'email' => 'carlos.rios@ita.edu.pe', 'dni' => '08765432'],
             ['name' => 'Ing. Patricia Vega', 'email' => 'patricia.vega@ita.edu.pe', 'dni' => '09876541'],
@@ -38,16 +41,18 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($teachers as $teacher) {
-            User::create([
-                'name' => $teacher['name'],
-                'email' => $teacher['email'],
-                'password' => Hash::make('password'),
-                'role' => 'teacher',
-                'dni' => $teacher['dni']
-            ]);
+            User::updateOrCreate(
+                ['email' => $teacher['email']],
+                [
+                    'name' => $teacher['name'],
+                    'password' => Hash::make('password'),
+                    'role' => 'teacher',
+                    'dni' => $teacher['dni']
+                ]
+            );
         }
 
-        // Students (79) - emails generados sin acentos
+        // Students (79)
         $firstNames = ['Juan', 'Maria', 'Carlos', 'Ana', 'Luis', 'Rosa', 'Pedro', 'Carmen', 'Jose', 'Miguel', 'Elena', 'Francisco', 'Laura', 'Antonio', 'Isabel', 'Diego', 'Sofia', 'Javier', 'Lucia', 'Fernando', 'Marta', 'Roberto', 'Patricia', 'Ricardo', 'Adriana', 'Gabriel', 'Valentina', 'Alejandro', 'Daniela', 'Andres', 'Natalia', 'Sergio', 'Camila', 'Mateo', 'Valeria', 'Sebastian', 'Renata', 'Leonardo', 'Ximena', 'Emiliano', 'Regina', 'Thiago', 'Antonella', 'Joaquin', 'Victoria', 'Bruno', 'Emilia', 'Facundo', 'Bianca', 'Lucas', 'Olivia', 'Martin', 'Zoe', 'Dante', 'Sara', 'Iker', 'Noa', 'Leo', 'Luna', 'Ian', 'Gaia', 'Noah', 'Emma', 'Oliver', 'Ava', 'Elijah', 'Charlotte', 'William', 'Sophia', 'Amelia', 'James', 'Isabella', 'Lucas', 'Mia', 'Henry', 'Evelyn', 'Alexander', 'Harper'];
         $lastNames = ['Mamani', 'Torres', 'Salas', 'Ccopa', 'Quispe', 'Paredes', 'Huanca', 'Ramos', 'Flores', 'Garcia', 'Lopez', 'Gonzalez', 'Rodriguez', 'Fernandez', 'Diaz', 'Ruiz', 'Castro', 'Morales', 'Ramirez', 'Herrera', 'Cruz', 'Ortiz', 'Jimenez', 'Moreno', 'Munoz', 'Alvarez', 'Romero', 'Alonso', 'Gutierrez', 'Navarro', 'Rivas', 'Serrano', 'Blanco', 'Molina', 'Ortega', 'Delgado', 'Soto', 'Lara', 'Vargas', 'Leon', 'Mendoza', 'Castillo', 'Cortes', 'Santos', 'Prieto', 'Gil', 'Marin', 'Rojas', 'Sanz', 'Cabrera', 'Nunez', 'Iglesias', 'Ferrer', 'Vidal', 'Pascual', 'Rubio', 'Moya', 'Santiago', 'Benitez', 'Medina', 'Arias', 'Reyes', 'Crespo', 'Vega', 'Hidalgo', 'Calvo', 'Perales'];
 
@@ -55,16 +60,17 @@ class UserSeeder extends Seeder
             $firstName = $firstNames[$i % count($firstNames)];
             $lastName = $lastNames[$i % count($lastNames)];
             $fullName = $firstName . ' ' . $lastName;
-            // Email sin acentos: solo minusculas, sin espacios extra
             $email = strtolower(str_replace(' ', '.', $fullName)) . ($i > 0 ? $i : '') . '@ita.edu.pe';
             
-            User::create([
-                'name' => $fullName,
-                'email' => $email,
-                'password' => Hash::make('password'),
-                'role' => 'student',
-                'dni' => str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT)
-            ]);
+            User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $fullName,
+                    'password' => Hash::make('password'),
+                    'role' => 'student',
+                    'dni' => str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT)
+                ]
+            );
         }
     }
 }
